@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal LAYAR PINISI  - Live Gemini AI</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <style>
+        body { padding-top: 50px; background-color: #f4f6f9; font-family: 'Segoe UI', Arial, sans-serif; }
+        .navbar-custom { background-color: #0b3c5d; border-bottom: 3px solid #328cc1; }
+        .navbar-custom .navbar-brand { color: white; font-weight: bold; }
+        .navbar-custom .navbar-text { color: #d9b310; }
+        #main-wrapper { display: flex; height: calc(100vh - 50px); overflow: hidden; }
+        
+        /* Area Peta */
+        #map-simulated { flex: 1; position: relative; height: 100%; }
+        
+        /* Sidebar */
+        #sidebar-simulated { width: 420px; background: white; border-left: 2px solid #ddd; padding: 15px; overflow-y: auto; z-index: 1000; }
+        .nav-tabs.nav-justified > .active > a { background-color: #0275d8 !important; color: white !important; font-weight: bold; }
+        
+        /* Chatbox */
+        .chat-container { height: 320px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fafafa; margin-bottom: 10px; border-radius: 4px; }
+        .chat-bubble { margin-bottom: 10px; padding: 8px 12px; border-radius: 8px; font-size: 12px; max-width: 85%; line-height: 1.4; display: block; }
+        .chat-bot { background: #e9ecef; color: #333; float: left; clear: both; }
+        .chat-user { background: #d4edda; color: #155724; float: right; clear: both; font-weight: 500; }
+        .table-param th { background-color: #d1ecf1; color: #0c5460; font-size: 12px; }
+        .table-param td { font-size: 12px; }
+        
+        /* Overlay Peta */
+        .map-floating-label { position: absolute; top: 10px; left: 10px; z-index: 1000; background: rgba(0,0,0,0.7); color: white; padding: 6px 10px; border-radius: 4px; font-size: 11px; pointer-events: none; }
+        .map-box-info { position: absolute; bottom: 20px; left: 20px; z-index: 1000; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 6px; border-left: 5px solid #0275d8; max-width: 350px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 11px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">⚓ LAYAR PINISI <span style="color:#328cc1;">PLUS</span></a>
+            </div>
+            <p class="navbar-text navbar-right hidden-xs" style="margin-right: 15px;">Laboratorium Kepemimpinan PKA — BPRL Makassar</p>
+        </div>
+    </nav>
+
+    <div id="main-wrapper">
+        
+        <div id="map-simulated">
+            <div class="map-floating-label">🌐 Peta WebGIS Terintegrasi (Leaflet Engine Active)</div>
+            
+            <div class="map-box-info">
+                <strong style="color: #0275d8;"><i class="fa fa-map-marker"></i> Lokasi Koordinat Terpilih:</strong><br>
+                <span style="color: #555; display:block; margin-top:4px;">
+                    Koordinat: -5.1477 LS , 119.4327 BT<br>
+                    Status Tata Ruang: Sesuai Alur Laut Provinsi<br>
+                    <strong>Skrining Risiko:</strong> Rendah (Desktop Study Optimal)
+                </span>
+            </div>
+        </div>
+
+        <div id="sidebar-simulated">
+            <ul class="nav nav-tabs nav-justified" style="margin-bottom: 15px;">
+                <li class="active"><a data-toggle="tab" href="#tab-ai"><i class="fa fa-android"></i> Tanya G-Lan (Live AI)</a></li>
+                <li><a data-toggle="tab" href="#tab-oseo"><i class="fa fa-tint"></i> Oseano</a></li>
+                <li><a data-toggle="tab" href="#tab-gerai"><i class="fa fa-comments"></i> Lanjut Konsultasi</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div id="tab-ai" class="tab-pane fade in active">
+                    <div class="alert alert-info" style="padding: 8px; font-size: 11px;">
+                        <i class="fa fa-info-circle"></i> <strong>Front-Office Digital G-Lan:</strong> Terhubung langsung dengan Google Gemini AI untuk konsultasi dasar KKPRL.
+                    </div>
+                    <div class="chat-container" id="box-chat-demo">
+                        <div class="chat-bubble chat-bot">
+                            <strong>G-Lan Assistant:</strong> Halo! Saya G-Lan. Ada yang bisa saya bantu terkait Kesesuaian Kegiatan Pemanfaatan Ruang Laut (KKPRL) di wilayah kerja BPRL Makassar?
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="input-chat-demo" class="form-control input-sm" placeholder="Tanyakan berkas, biaya, atau syarat KKPRL...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary btn-sm" id="btn-chat-demo" type="button">Kirim</button>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="tab-oseo" class="tab-pane fade">
+                    <div class="panel panel-success">
+                        <div class="panel-heading" style="font-weight: bold; font-size: 12px;"><i class="fa fa-globe"></i> Integrasi Data Satelit Indikatif</div>
+                        <div class="panel-body" style="padding: 10px;">
+                            <table class="table table-bordered table-condensed table-param" style="margin-bottom: 8px;">
+                                <thead>
+                                    <tr><th>Parameter Kelautan</th><th>Nilai Riil Indikatif</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Suhu Permukaan Laut (SPL)</td><td><strong>29.4 °C</strong></td></tr>
+                                    <tr><td>Klorofil-a (Produktivitas)</td><td><strong>0.42 mg/m³</strong></td></tr>
+                                    <tr><td>Kecepatan Arus Pesisir</td><td><strong>0.31 m/s</strong></td></tr>
+                                    <tr><td>Tinggi Gelombang Signifikan</td><td><strong>0.8 Meter</strong></td></tr>
+                                </tbody>
+                            </table>
+                            <div class="alert alert-success" style="margin-bottom: 0; padding: 8px; font-size: 11px;">
+                                <strong>Rekomendasi G-Lan:</strong> Nilai bio-fisik perairan ini sangat mendukung untuk pengembangan klaster budidaya rumput laut atau wisata bahari.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-gerai" class="tab-pane fade">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading" style="font-weight: bold; font-size: 12px;"><i class="fa fa-envelope"></i> Sistem Antrean E-Consultation</div>
+                        <div class="panel-body" style="padding: 10px;">
+                            <form id="form-gerai-demo" onsubmit="return prosesFormDemo(event)">
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    <label style="font-size:11px;">Nama Instansi / Pemohon</label>
+                                    <input type="text" id="f-nama" class="form-control input-sm" required placeholder="Contoh: PT. Aquakultur Berjaya">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 8px;">
+                                    <label style="font-size:11px;">Nomor WhatsApp</label>
+                                    <input type="text" id="f-wa" class="form-control input-sm" required placeholder="081234xxxx">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <label style="font-size:11px;">Pokok Kendala Teknis</label>
+                                    <textarea id="f-pesan" class="form-control input-sm" rows="2" required placeholder="Tulis masalah kesesuaian ruang laut Anda..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-warning btn-sm btn-block" style="font-weight:bold;">Ajukan Tiket Layanan</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // =========================================================================
+        // PENGATURAN API KEY GEMINI AI
+        // GANTI teks di bawah ini dengan API Key yang Anda dapatkan dari Google AI Studio
+        // =========================================================================
+        const GEMINI_API_KEY = "AQ.Ab8RN6IAiEuGe6LpEoxdD0IklSH4YEt-CffX2DhsyjRKEg2X1Q";
+
+        // Instruksi karakter kepribadian untuk G-Lan Assistant
+        const SYSTEM_INSTRUCTION = `
+        Anda adalah G-Lan Assistant, sebuah front-office digital cerdas untuk portal LAYAR PINISI di BPRL Makassar. 
+        Tugas utama Anda adalah melayani konsultasi dasar mengenai Kesesuaian Kegiatan Pemanfaatan Ruang Laut (KKPRL).
+        Berikan jawaban yang ramah, ilmiah, ringkas, dan solutif. Jelaskan bahwa portal ini membantu menurunkan biaya konsultan 
+        jasa perencanaan karena pengguna bisa memanfaatkan data oseanografi dasar secara gratis (self-assessment). 
+        Batasi jawaban maksimal 2-3 paragraf agar pas di layar chat.
+        `;
+
+        $(document).ready(function() {
+            // --- INCOGNITO / INISIALISASI PETA LEAFLET ---
+            var centerLatLong = [-5.1477, 119.4327];
+            var map = L.map('map-simulated').setView(centerLatLong, 10);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            var marker = L.marker(centerLatLong).addTo(map);
+            marker.bindPopup("<b>Titik Lokasi Pengajuan</b><br>Takalar-Makassar").openPopup();
+
+            var polygonCoords = [
+                [-5.20, 119.35], [-5.15, 119.35], [-5.15, 119.45], [-5.22, 119.45]
+            ];
+            var polygon = L.polygon(polygonCoords, {
+                color: '#27ae60', fillColor: '#2ecf71', fillOpacity: 0.4, weight: 2
+            }).addTo(map);
+            polygon.bindPopup("<b>Zona Pemanfaatan Umum</b><br>Simulasi Area Budidaya/Wisata");
+
+
+            // --- FUNGSI UTAMA INTEGRASI GEMINI AI CHAT ---
+            async function jalankanChat() {
+                var txt = $('#input-chat-demo').val().trim();
+                if(txt === '') return;
+
+                // 1. Tampilkan chat user
+                $('#box-chat-demo').append('<div class="chat-bubble chat-user">' + txt + '</div>');
+                $('#input-chat-demo').val('');
+                $('#box-chat-demo').scrollTop($('#box-chat-demo')[0].scrollHeight);
+
+                // 2. Tampilkan status loading
+                var tId = 'typing-' + Date.now();
+                $('#box-chat-demo').append('<div class="chat-bubble chat-bot" id="' + tId + '"><em>G-Lan sedang mengetik...</em></div>');
+                $('#box-chat-demo').scrollTop($('#box-chat-demo')[0].scrollHeight);
+
+                // Cek jika API Key belum diisi
+                if (GEMINI_API_KEY === "MASUKKAN_API_KEY_GEMINI_ANDA_DISINI" || GEMINI_API_KEY === "") {
+                    setTimeout(function() {
+                        $('#' + tId).html('<strong>G-Lan Assistant:</strong> Sistem belum dikoneksikan. Sila masukkan API Key Gemini yang valid di dalam kode HTML pada baris variabel <code>GEMINI_API_KEY</code>.');
+                    }, 800);
+                    return;
+                }
+
+                // 3. Request langsung ke API Google Gemini menggunakan model Gemini 2.5 Flash
+                const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+                
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: txt }] }],
+                            systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+                            generationConfig: { temperature: 0.7 }
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.candidates && data.candidates[0].content.parts[0].text) {
+                        let aiReply = data.candidates[0].content.parts[0].text;
+                        
+                        // Mengubah format baris baru agar rapi di HTML
+                        aiReply = aiReply.replace(/(?:\r\n|\r|\n)/g, '<br>');
+
+                        $('#' + tId).html('<strong>G-Lan Assistant:</strong> ' + aiReply);
+                    } else {
+                        $('#' + tId).html('<strong>G-Lan Assistant:</strong> Maaf, tidak ada respon yang diterima dari AI.');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    $('#' + tId).html('<strong>G-Lan Assistant:</strong> Koneksi terputus. Pastikan API Key benar dan internet Anda aktif.');
+                }
+                
+                $('#box-chat-demo').scrollTop($('#box-chat-demo')[0].scrollHeight);
+            }
+
+            // Trigger klik tombol & tombol enter
+            $('#btn-chat-demo').click(jalankanChat);
+            $('#input-chat-demo').keypress(function(e) { if(e.which == 13) jalankanChat(); });
+        });
+
+        // --- SIMULASI ANTREAN GERAI ---
+        function prosesFormDemo(e) {
+            e.preventDefault();
+            var n = $('#f-nama').val();
+            var w = $('#f-wa').val();
+            var t = 'PINISI-' + Math.floor(1000 + Math.random() * 9000);
+            alert('Sukses Terkirim!\n\nNomor Tiket Antrean: ' + t + '\nHalo ' + n + ', data Anda telah masuk sistem antrean digital BPRL Makassar. Tautan ruang konsultasi video (Zoom) akan otomatis dikirim petugas ke nomor WhatsApp ' + w + '.');
+            document.getElementById('form-gerai-demo').reset();
+        }
+    </script>
+</body>
+</html>
